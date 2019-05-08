@@ -1,0 +1,28 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'org.proticity.gradle:java-modern-gradle-plugin:0.1.0'
+    }
+}
+
+apply plugin: 'java-library'
+apply plugin: 'org.proticity.gradle.java-modern'
+
+config {
+    info {
+        name = 'JDK 11 Sample Project'
+        description = 'A sample project built on JDK 11.'
+        vendor = 'Proticity'
+
+        scm {
+            url = 'https://gitlab.com/proticity/cloud/java-modern-gradle-plugin'
+        }
+
+        organization {
+            url = 'https://www.proticity.org'
+        }
+    }
+}

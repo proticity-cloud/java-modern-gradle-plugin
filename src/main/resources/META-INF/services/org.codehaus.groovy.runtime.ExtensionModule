@@ -1,0 +1,3 @@
+moduleName = javamodern-module
+moduleVersion = 1.0.0
+extensionClasses = org.proticity.gradle.plugin.javamodern.GroovyExtensions

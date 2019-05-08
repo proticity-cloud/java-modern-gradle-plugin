@@ -1,0 +1,153 @@
+variables:
+  DOCKER_DRIVER: overlay2
+
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+  - export M2_HOME=`pwd`/.m2
+
+cache:
+  paths:
+    - .gradle
+  key: "$CI_BUILD_REF_NAME"
+
+stages:
+  - build
+  - test
+  - deploy
+
+# Build and cache build results and publication
+build-jdk8:
+  stage: build
+  image: openjdk:8-jdk-slim
+  script:
+    - ./gradlew -i --stacktrace downloadLicenses test assemble publishPluginMavenPublicationToMavenLocal
+  artifacts:
+    paths:
+      - build
+    expire_in: 1 hour
+
+build-jdk11:
+  stage: build
+  image: openjdk:11-jdk-slim
+  script:
+    - ./gradlew -i --stacktrace downloadLicenses test assemble publishPluginMavenPublicationToMavenLocal
+  allow_failure: true
+
+# Testing configurations
+.test-jdk8: &test-jdk8
+  dependencies:
+    - build-jdk8
+  script:
+    - ./gradlew -i --stacktrace assemble publishPluginMavenPublicationToMavenLocal
+    - cd jdk8-sample-project
+    - ./gradlew -i --stacktrace assemble publishMainPublicationToMavenLocal
+
+.test-jdk11: &test-jdk11
+  dependencies:
+    - build-jdk8
+  script:
+    - ./gradlew -i --stacktrace assemble publishPluginMavenPublicationToMavenLocal
+    - cd jdk8-sample-project
+    - ./gradlew -i --stacktrace assemble publishMainPublicationToMavenLocal
+    - cd ../jdk11-sample-project
+    - ./gradlew -i --stacktrace assemble publishMainPublicationToMavenLocal
+
+test-jdk8-openjdk:
+  stage: test
+  image: openjdk:8-jdk-slim
+  <<: *test-jdk8
+
+test-jdk11-openjdk:
+  stage: test
+  image: openjdk:11-jdk-slim
+  <<: *test-jdk11
+
+test-jdk12-openjdk:
+  stage: test
+  image: openjdk:12-jdk-oracle
+  <<: *test-jdk11
+
+test-jdk13ea-openjdk:
+  stage: test
+  image: openjdk:13-jdk-oracle
+  allow_failure: true
+  <<: *test-jdk11
+
+test-jdk8-adoptopenjdk:
+  stage: test
+  image: adoptopenjdk/openjdk8:alpine-slim
+  <<: *test-jdk8
+
+test-jdk11-adoptopenjdk:
+  stage: test
+  image: adoptopenjdk/openjdk11:alpine-slim
+  <<: *test-jdk11
+
+test-jdk12-adoptopenjdk:
+  stage: test
+  image: adoptopenjdk/openjdk12:alpine-slim
+  <<: *test-jdk11
+
+test-jdk8-openj9:
+  stage: test
+  image: adoptopenjdk/openjdk8-openj9:alpine-slim
+  <<: *test-jdk8
+
+test-jdk11-openj9:
+  stage: test
+  image: adoptopenjdk/openjdk11-openj9:alpine-slim
+  <<: *test-jdk11
+
+test-jdk12-openj9:
+  stage: test
+  image: adoptopenjdk/openjdk12-openj9:alpine-slim
+  <<: *test-jdk11
+
+test-jdk8-corretto:
+  stage: test
+  image: amazoncorretto:8
+  <<: *test-jdk8
+
+test-jdk11-corretto:
+  stage: test
+  image: amazoncorretto:11
+  <<: *test-jdk11
+
+test-jdk8-zulu:
+  stage: test
+  image: azul/zulu-openjdk:8
+  <<: *test-jdk8
+
+test-jdk11-zulu:
+  stage: test
+  image: azul/zulu-openjdk:11
+  <<: *test-jdk11
+
+test-jdk12-zulu:
+  stage: test
+  image: azul/zulu-openjdk:12
+  <<: *test-jdk11
+
+# Build final result and deploy
+pages:
+  stage: deploy
+  image: openjdk:8-jdk-slim
+  dependencies:
+    - build-jdk8
+  environment:
+    name: Gradle Plugin Portal
+    url: https://plugins.gradle.org/plugin/org.proticity.gradle.java-modern
+  script:
+    - mkdir -p ~/.gradle
+    - printf "gradle.publish.key=${GRADLE_PLUGIN_PUBLISH_KEY}\ngradle.publish.secret=${GRADLE_PLUGIN_PUBLISH_SECRET}\n" > ~/.gradle/gradle.properties
+    - ./gradlew -i --stacktrace -Dgradle.publish.key=${GRADLE_PLUGIN_PUBLISH_KEY} -Dgradle.publish.secret=${GRADLE_PLUGIN_PUBLISH_SECRET} assemble publishPlugins
+    - mkdir public
+    - mv build/docs/groovydoc public/apidocs
+  artifacts:
+    paths:
+      - build/libs
+      - build/publications
+      - public
+  only:
+    refs:
+      - master

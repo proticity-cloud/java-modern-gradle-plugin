@@ -1,0 +1,150 @@
+plugins {
+    id 'groovy'
+
+    id 'org.kordamp.gradle.licensing' version '0.19.0'
+    id 'org.kordamp.gradle.bintray' version '0.19.0'
+    id 'org.kordamp.gradle.plugin' version '0.19.0'
+    id 'org.kordamp.gradle.build-scan' version '0.19.0'
+    id 'org.kordamp.gradle.groovydoc' version '0.19.0'
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation('org.codehaus.groovy:groovy-all:2.5.6') {
+        force = true
+    }
+
+    // Automatically configures Gradle for compiling Jigsaw modules.
+    implementation 'org.javamodularity:moduleplugin:1.5.0'
+
+    // Configure Kordamp's publishing support.
+    implementation 'org.kordamp.gradle:bintray-gradle-plugin:0.19.0'
+    implementation 'org.kordamp.gradle:publishing-gradle-plugin:0.19.0'
+
+    // Configure Kordamp's build scan plugin.
+    implementation 'org.kordamp.gradle:buildscan-gradle-plugin:0.19.0'
+
+    // Configure Kordamp's licensing support.
+    implementation 'org.kordamp.gradle:licensing-gradle-plugin:0.19.0'
+
+    // JAR packaging plugin.
+    implementation 'org.kordamp.gradle:jar-gradle-plugin:0.19.0'
+
+    // Configure report generation.
+    implementation 'gradle.plugin.org.danilopianini:javadoc.io-linker:0.1.4-700fdb6'
+    implementation 'org.kordamp.gradle:javadoc-gradle-plugin:0.19.0'
+    implementation 'org.kordamp.gradle:source-gradle-plugin:0.19.0'
+    implementation 'org.kordamp.gradle:sourcexref-gradle-plugin:0.19.0'
+
+    // Setup testing with Jacoco code coverage reports.
+    implementation 'org.kordamp.gradle:testing-gradle-plugin:0.19.0'
+    implementation 'org.kordamp.gradle:integrationtest-gradle-plugin:0.19.0'
+    implementation 'org.kordamp.gradle:functionaltest-gradle-plugin:0.19.0'
+    implementation 'gradle.plugin.com.palantir:jacoco-coverage:0.4.0'
+    implementation 'org.kordamp.gradle:jacoco-gradle-plugin:0.19.0'
+
+    // Support for automated releases.
+    implementation 'net.researchgate:gradle-release:2.8.0'
+
+    // Security and bug checks.
+    implementation 'gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.7.1'
+    implementation 'org.owasp:dependency-check-gradle:5.0.0-M2'
+
+    // Spring dependency management to pre-version common dependencies
+    implementation 'io.spring.gradle:dependency-management-plugin:1.0.7.RELEASE'
+
+    // Version plugin for checking dependency versions, doing upgrades, etc.
+    implementation 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
+    implementation 'se.patrikerdes:gradle-use-latest-versions-plugin:0.2.9'
+    implementation 'com.fkorotkov:gradle-libraries-plugin:0.1'
+}
+
+repositories {
+    jcenter()
+    gradlePluginPortal()
+    mavenLocal()
+}
+
+config {
+    info {
+        name = 'Java-Modern Gradle Plugin'
+        description = 'An opinionated preconfiguration for Java projects.'
+        vendor = 'Proticity'
+        inceptionYear = '2019'
+        tags = [ 'java', 'project', 'plugin', 'cloud', 'gradle' ]
+
+        links {
+            website = 'https://www.proticity.org'
+            issueTracker = 'https://gitlab.com/proticity/cloud/java-modern-gradle-plugin/issues'
+            scm = 'https://gitlab.com/proticity/cloud/java-modern-gradle-plugin'
+        }
+
+        scm {
+            url = 'https://gitlab.com/proticity/cloud/java-modern-gradle-plugin'
+            connection = 'https://gitlab.com/proticity/cloud/java-modern-gradle-plugin.git'
+            developerConnection = 'git@gitlab.com:proticity/cloud/java-modern-gradle-plugin.git'
+        }
+
+        organization {
+            name = 'Proticity'
+            url = 'https://www.proticity.org'
+        }
+
+        people {
+            person {
+                id = 'johnstewart'
+                name = 'John Stewart'
+                email = 'dev@charmedbaryon.tv'
+                roles = [ 'maintainer', 'developer', 'owner' ]
+                timezone = 'America/Los_Angeles'
+            }
+        }
+    }
+
+    licensing {
+        licenses {
+            license {
+                id = 'Apache-2.0'
+            }
+        }
+    }
+
+    bintray {
+        enabled = true
+        credentials {
+            username = System.getenv('BINTRAY_USER') ?: '**UNDEFINED**'
+            password = System.getenv('BINTRAY_KEY') ?: '**UNDEFINED**'
+        }
+        userOrg = 'proticity'
+        repo = 'proticity-maven'
+        skipMavenSync = true
+    }
+
+    publishing {
+    }
+
+    plugin {
+        id = 'org.proticity.gradle.java-modern'
+        implementationClass = 'org.proticity.gradle.plugin.javamodern.JavaModernPlugin'
+    }
+}
+
+compileJava.enabled = false
+javadoc.enabled = false
+
+pluginBundle {
+    website = 'https://www.proticity.org'
+    vcsUrl = 'https://gitlab.com/proticity/cloud/java-modern-gradle-plugin'
+    tags = [ 'project', 'java', 'cloud', 'gradle', 'cloud' ]
+}
+
+gradlePlugin {
+    plugins {
+        javaModern {
+            id = 'org.proticity.gradle.java-modern'
+            displayName = 'Java-Modern Gradle Plugin'
+            description = 'An opinionated preconfiguration for Java projects.'
+            implementationClass = 'org.proticity.gradle.plugin.javamodern.JavaModernPlugin'
+        }
+    }
+}
