@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.proticity.gradle.plugin.javamodern
 
 import org.gradle.api.Project
@@ -38,14 +39,22 @@ class CloudExtension {
     String zookeeperTarget
 
     /**
-     * The target Elastic Search version configuration; this may be either the version you want or an
-     * ElasticSearchTarget enum value which specifies the environment it will be deployed to, in which case the best
+     * The target Elasticsearch version configuration; this may be either the version you want or an
+     * ElasticsearchTarget enum value which specifies the environment it will be deployed to, in which case the best
      * known version is automatically picked.
      */
-    Object elasticSearchTarget = ElasticSearchTarget.ON_PREMISE
+    Object elasticsearchTarget = ElasticsearchTarget.ON_PREMISE
 
+    /**
+     * The build project.
+     */
     protected final Project project
 
+    /**
+     * Construct a new CloudExtension.
+     *
+     * @param project the project.
+     */
     CloudExtension(Project project) {
         this.project = project
     }
@@ -111,22 +120,22 @@ class CloudExtension {
     }
 
     /**
-     * Returns the target Elastic Search version for the configured target.
+     * Returns the target Elasticsearch version for the configured target.
      *
-     * @return The target Elastic Search version for the configured target.
+     * @return The target Elasticsearch version for the configured target.
      */
-    String getTargetElasticSearchVersion() {
-        if (elasticSearchTarget instanceof String) {
-            return elasticSearchTarget
-        } else if (elasticSearchTarget instanceof ElasticSearchTarget) {
-            switch (elasticSearchTarget) {
-                case ElasticSearchTarget.ON_PREMISE:
+    String getTargetElasticsearchVersion() {
+        if (elasticsearchTarget instanceof String) {
+            return elasticsearchTarget
+        } else if (elasticsearchTarget instanceof ElasticsearchTarget) {
+            switch (elasticsearchTarget) {
+                case ElasticsearchTarget.ON_PREMISE:
                     return '7.0.0'
-                case ElasticSearchTarget.AWS_ELK:
+                case ElasticsearchTarget.AWS_ELK:
                     return '7.0.0'
             }
         } else {
-            throw new IllegalStateException('Elastic search target must be a version string or target enum.')
+            throw new IllegalStateException('Elasticsearch target must be a version string or target enum.')
         }
     }
 }

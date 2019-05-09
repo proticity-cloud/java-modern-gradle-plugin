@@ -228,6 +228,16 @@ class JavaModernPlugin implements Plugin<Project> {
         }
 
         // Configure release
+        if (!System.getProperty('release.useAutomaticVersion') && System.getenv('GRADLE_RELEASE_VERSION') &&
+                System.getenv('GRADLE_RELEASE_NEW_VERSION')) {
+            System.setProperty('release.useAutomaticVersion', 'true')
+        }
+        if (!System.getProperty('release.releaseVersion')) {
+            System.setProperty('release.releaseVersion', System.getenv('GRADLE_RELEASE_VERSION'))
+        }
+        if (!System.getProperty('release.newVersion')) {
+            System.setProperty('release.newVersion', System.getenv('GRADLE_RELEASE_NEW_VERSION'))
+        }
         project.plugins.apply(ReleasePlugin)
         project.extensions.findByType(ReleaseExtension).with {
             failOnUnversionedFiles = false
@@ -278,7 +288,7 @@ class JavaModernPlugin implements Plugin<Project> {
         def hibernateVersion = '5.4.1.Final'
         def kafkaVersion = cloudExt.getTargetKafkaVersion()
         def zookeeperVersion = cloudExt.getTargetZookeeperVersion()
-        def elasticSearchVersion = cloudExt.getTargetElasticSearchVersion()
+        def elasticSearchVersion = cloudExt.getTargetElasticsearchVersion()
 
         depManagement.dependencies {
             // Utilities

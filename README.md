@@ -12,7 +12,7 @@ Add to your project by applying via the dependency spec method:
 ```groovy
 plugins {
     id 'java-library'
-    id 'org.proticity.gradle.java-modern' version '0.1.0'
+    id 'org.proticity.gradle.java-modern' version '0.1.1'
 }
 ```
 ...or by adding to your buildscript and applying manually:
@@ -25,7 +25,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'org.proticity:java-modern-gradle-plugin:0.1.0'
+        classpath 'org.proticity:java-modern-gradle-plugin:0.1.1'
     }
 }
 
@@ -37,7 +37,7 @@ The following sampe project shows how simple it is to get a complete Java projec
 ```groovy
 plugins {
     id 'java-library'
-    id 'org.proticity.gradle.java-modern' version '0.1.0'
+    id 'org.proticity.gradle.java-modern' version '0.1.1'
 }
 
 config {
@@ -236,7 +236,10 @@ report plugin.
 
 ### Release Management
 The release plugin is automatically applied, allowing for automated release processes. The plugin will bump versions,
-publish, tag the build, and rollback on failure.
+publish, tag the build, and rollback on failure. To better integrate with some CI environments it is possible to define
+the version numbers of a release via environment variables rather than just properties. If the properties are not
+declared then you can use the variables `GRADLE_RELEASE_VERSION` and `GRADLE_RELEASE_NEW_VERSION` instead. Automatic
+versioning is enabled when both environment variables are present.
 
 ### Licence Management
 Includes the Kordamp licensing plugin. This integrates license header checks into the `build` task and is preconfigured

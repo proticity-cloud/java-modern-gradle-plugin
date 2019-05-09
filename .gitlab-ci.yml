@@ -136,10 +136,8 @@ pages:
     - build-jdk8
   environment:
     name: Gradle Plugin Portal
-    url: https://plugins.gradle.org/plugin/org.proticity.gradle.java-modern
+    url: https://plugins.gradle.org/plugin/org.proticity.gradle.java
   script:
-    - mkdir -p ~/.gradle
-    - printf "gradle.publish.key=${GRADLE_PLUGIN_PUBLISH_KEY}\ngradle.publish.secret=${GRADLE_PLUGIN_PUBLISH_SECRET}\n" > ~/.gradle/gradle.properties
     - ./gradlew -i --stacktrace -Dgradle.publish.key=${GRADLE_PLUGIN_PUBLISH_KEY} -Dgradle.publish.secret=${GRADLE_PLUGIN_PUBLISH_SECRET} assemble publishPlugins
     - mkdir public
     - mv build/docs/groovydoc public/apidocs
