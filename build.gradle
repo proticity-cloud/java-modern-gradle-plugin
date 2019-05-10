@@ -14,6 +14,9 @@ dependencies {
         force = true
     }
 
+    // IDEA-Plus plugin for enhanced IDEA integration.
+    implementation 'org.proticity.gradle:idea-plus-gradle-plugin:0.1.0'
+
     // Automatically configures Gradle for compiling Jigsaw modules.
     implementation 'org.javamodularity:moduleplugin:1.5.0'
 

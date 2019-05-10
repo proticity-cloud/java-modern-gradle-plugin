@@ -18,7 +18,9 @@
 
 package org.proticity.gradle.plugin.javamodern
 
+import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.util.ConfigureUtil
 
 /**
  * An extension class for customizing the behavior of the JavaModernPlugin.
@@ -75,5 +77,13 @@ class JavaModernExtension {
         def configs = new HashSet<String>()
         configs.add('functionalTest')
         return new TestOptions(project, configs)
+    }
+
+    void cloud(Action<? super CloudExtension> action) {
+        action.execute(cloud)
+    }
+
+    void cloud(Closure closure) {
+        ConfigureUtil.configure(closure, cloud)
     }
 }

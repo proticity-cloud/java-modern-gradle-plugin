@@ -60,6 +60,8 @@ import org.kordamp.gradle.plugin.testing.TestingPlugin
 import org.owasp.dependencycheck.gradle.DependencyCheckPlugin
 import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
 import org.owasp.dependencycheck.reporting.ReportGenerator
+import org.proticity.gradle.plugin.idea.IdeaPlusExtension
+import org.proticity.gradle.plugin.idea.IdeaPlusPlugin
 import se.patrikerdes.UseLatestVersionsPlugin
 
 /**
@@ -215,8 +217,8 @@ class JavaModernPlugin implements Plugin<Project> {
         // come after. This is a side effect of the way Kordamp will configure the plugin if it is detected as applied
         // when those plugins apply. It will cause failure when importing into IntelliJ due to a bug in Gradle (not
         // Kordamp). Set it up manually here in a safe way.
-        project.plugins.apply(IdeaPlugin)
-        project.idea {
+        project.plugins.apply(IdeaPlusPlugin)
+        project.extensions.findByType(IdeaPlusExtension).with {
             module {
                 testSourceDirs += project.sourceSets.integrationTest.java.srcDirs
                 testSourceDirs += project.sourceSets.functionalTest.java.srcDirs
@@ -228,15 +230,17 @@ class JavaModernPlugin implements Plugin<Project> {
         }
 
         // Configure release
-        if (!System.getProperty('release.useAutomaticVersion') && System.getenv('GRADLE_RELEASE_VERSION') &&
-                System.getenv('GRADLE_RELEASE_NEW_VERSION')) {
+        def envGradleReleaseVersion = System.getenv('GRADLE_RELEASE_VERSION')
+        def envGradleReleaseNewVersion = System.getenv('GRADLE_RELEASE_NEW_VERSION')
+        if (!System.getProperty('release.useAutomaticVersion') && envGradleReleaseVersion
+                && envGradleReleaseNewVersion) {
             System.setProperty('release.useAutomaticVersion', 'true')
         }
-        if (!System.getProperty('release.releaseVersion')) {
-            System.setProperty('release.releaseVersion', System.getenv('GRADLE_RELEASE_VERSION'))
+        if (!System.getProperty('release.releaseVersion') && envGradleReleaseVersion) {
+            System.setProperty('release.releaseVersion', envGradleReleaseVersion)
         }
-        if (!System.getProperty('release.newVersion')) {
-            System.setProperty('release.newVersion', System.getenv('GRADLE_RELEASE_NEW_VERSION'))
+        if (!System.getProperty('release.newVersion') && envGradleReleaseNewVersion) {
+            System.setProperty('release.newVersion', envGradleReleaseNewVersion)
         }
         project.plugins.apply(ReleasePlugin)
         project.extensions.findByType(ReleaseExtension).with {

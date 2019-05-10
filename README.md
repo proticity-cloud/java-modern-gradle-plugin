@@ -161,7 +161,6 @@ JavaDocs are automatically generated for the `assemble` task. The JavaDocs defau
 members and include links to the source cross-reference. Your dependencies are scanned and JavaDoc links are
 automatically generated for each Maven Central dependency using javadoc.io.
 
-
 ### Source Jar Generation
 Automatically builds a source JAR during the `assemble` task, needed for publishing to repositories such as Sonatype's
 OSSRH as well as being useful to consumers of your library.
@@ -233,6 +232,22 @@ integration package will also be added.
 It also automatically includes Jacoco coverage reporting for tests and supports not only Kordamp's merged reporting for
 projects and subprojects but also merged reports within a single project between each type of test via Palantir's full
 report plugin.
+
+
+### IDEA Integration
+This plugin applies the [IDEA-Plus Gradle Plugin](https://gitlab.com/proticity/cloud/idea-plus-gradle-plugin), which
+provides enhanced features above and beyond the built-in IDEA plugin. When configuring IDEA integration you should use
+the `ideaPlus` extension instead of the standard `idea` extension. Support for adding a bundled code style to an
+IntelliJ project is available with the `applyIdeaCodeStyle` task and configured via the extension:
+
+```groovy
+ideaPlus {
+    project {
+        useProjectStyle = true
+        codeStyle = resources.text.fromFile('src/main/codestyles/idea-codestyle.xml')
+    }
+}
+```
 
 ### Release Management
 The release plugin is automatically applied, allowing for automated release processes. The plugin will bump versions,
