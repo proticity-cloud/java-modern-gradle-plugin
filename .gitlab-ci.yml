@@ -134,9 +134,6 @@ pages:
   image: openjdk:8-jdk-slim
   dependencies:
     - build-jdk8
-  environment:
-    name: Gradle Plugin Portal
-    url: https://plugins.gradle.org/plugin/org.proticity.gradle.java
   script:
     - ./gradlew -i --stacktrace -Dgradle.publish.key=${GRADLE_PLUGIN_PUBLISH_KEY} -Dgradle.publish.secret=${GRADLE_PLUGIN_PUBLISH_SECRET} assemble publishPlugins
     - mkdir public

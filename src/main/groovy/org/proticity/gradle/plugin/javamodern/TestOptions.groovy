@@ -108,6 +108,7 @@ class TestOptions {
      * @param config the base name of the configurations to which JUnit will be added.
      */
     private void addJUnit(final String config) {
+        project.logger.info("Adding JUnit dependencies to ${config} configurations.")
         project.dependencies.add(config + 'Implementation', 'org.junit.jupiter:junit-jupiter-api')
         project.dependencies.add(config + 'RuntimeOnly', 'org.junit.jupiter:junit-jupiter-engine')
         if (hasMockito(config)) {
@@ -120,6 +121,7 @@ class TestOptions {
      */
     void useJUnitPlatform() {
         for (def config : configurations) {
+            addJUnit(config)
             ((Test) project.tasks.findByName(config)).useJUnitPlatform()
         }
     }
@@ -131,6 +133,7 @@ class TestOptions {
      */
     void useJUnitPlatform(Action<? super TestNGOptions> testFrameworkConfigure) {
         for (def config : configurations) {
+            addJUnit(config)
             ((Test) project.tasks.findByName(config)).useJUnitPlatform(testFrameworkConfigure)
         }
     }
@@ -142,6 +145,7 @@ class TestOptions {
      */
     void useJUnitPlatform(Closure testFrameworkConfigure) {
         for (def config : configurations) {
+            addJUnit(config)
             ((Test) project.tasks.findByName(config)).useJUnitPlatform(testFrameworkConfigure)
         }
     }
@@ -152,6 +156,7 @@ class TestOptions {
      * @param config the base name of the configurations to which dependencies are to be added.
      */
     private void addTestNG(final String config) {
+        project.logger.info("Adding TestNG dependencies to ${config} configurations.")
         project.dependencies.add(config + 'Implementation', 'org.testng:testng')
         if (hasMockito(config)) {
             project.dependencies.add(config + 'Implementation', 'org.mockito:mockito-testng')
@@ -163,6 +168,7 @@ class TestOptions {
      */
     void useTestNG() {
         for (def config : configurations) {
+            addTestNG(config)
             ((Test) project.tasks.findByName(config)).useTestNG()
         }
     }
@@ -174,6 +180,7 @@ class TestOptions {
      */
     void useTestNG(Action<? super TestNGOptions> testFrameworkConfigure) {
         for (def config : configurations) {
+            addTestNG(config)
             ((Test) project.tasks.findByName(config)).useTestNG(testFrameworkConfigure)
         }
     }
@@ -185,6 +192,7 @@ class TestOptions {
      */
     void useTestNG(Closure testFrameworkConfigure) {
         for (def config : configurations) {
+            addTestNG(config)
             ((Test) project.tasks.findByName(config)).useTestNG(testFrameworkConfigure)
         }
     }
