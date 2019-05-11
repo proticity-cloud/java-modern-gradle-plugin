@@ -39,7 +39,6 @@ import org.gradle.api.plugins.quality.CheckstyleExtension
 import org.gradle.api.plugins.quality.CheckstylePlugin
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.authentication.http.HttpHeaderAuthentication
-import org.gradle.plugins.ide.idea.IdeaPlugin
 import org.gradle.plugins.signing.SigningExtension
 import org.gradle.plugins.signing.SigningPlugin
 import org.javamodularity.moduleplugin.ModuleSystemPlugin
@@ -434,6 +433,15 @@ class JavaModernPlugin implements Plugin<Project> {
                 entry 'curator-client'
                 entry 'curator-x-discovery'
                 entry 'curator-x-async'
+            }
+
+            // Force modern ASM version, needed for even building with this plugin due to SpotBugs
+            dependencySet(group: 'org.ow2.asm', version: '7.1') {
+                entry 'asm'
+                entry 'asm-analysis'
+                entry 'asm-commons'
+                entry 'asm-tree'
+                entry 'asm-util'
             }
         }
 

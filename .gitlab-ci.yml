@@ -8,7 +8,6 @@ before_script:
 cache:
   paths:
     - .gradle
-  key: "$CI_BUILD_REF_NAME"
 
 stages:
   - build
@@ -38,19 +37,31 @@ build-jdk11:
   dependencies:
     - build-jdk8
   script:
+    - mkdir -p ~/.gradle/caches
+    - find ~/.gradle/caches/ -type d -name 'org.proticity.gradle' -prune -exec rm -rf "{}" \; -print
     - ./gradlew -i --stacktrace assemble publishPluginMavenPublicationToMavenLocal
     - cd jdk8-sample-project
-    - ./gradlew -i --stacktrace assemble publishMainPublicationToMavenLocal
+    - ./gradlew -i --stacktrace assemble spotbugsMain publishMainPublicationToMavenLocal
+  cache:
+    paths:
+      - .gradle
+    policy: pull
 
 .test-jdk11: &test-jdk11
   dependencies:
     - build-jdk8
   script:
+    - mkdir -p ~/.gradle/caches
+    - find ~/.gradle/caches/ -type d -name 'org.proticity.gradle' -prune -exec rm -rf "{}" \; -print
     - ./gradlew -i --stacktrace assemble publishPluginMavenPublicationToMavenLocal
     - cd jdk8-sample-project
-    - ./gradlew -i --stacktrace assemble publishMainPublicationToMavenLocal
+    - ./gradlew -i --stacktrace assemble spotbugsMain publishMainPublicationToMavenLocal
     - cd ../jdk11-sample-project
-    - ./gradlew -i --stacktrace assemble publishMainPublicationToMavenLocal
+    - ./gradlew -i --stacktrace assemble spotbugsMain publishMainPublicationToMavenLocal
+  cache:
+    paths:
+      - .gradle
+    policy: pull
 
 test-jdk8-openjdk:
   stage: test

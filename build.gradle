@@ -77,7 +77,7 @@ config {
         description = 'An opinionated preconfiguration for Java projects.'
         vendor = 'Proticity'
         inceptionYear = '2019'
-        tags = [ 'java', 'project', 'plugin', 'cloud', 'gradle' ]
+        tags = ['java', 'project', 'plugin', 'cloud', 'gradle']
 
         links {
             website = 'https://www.proticity.org'
@@ -101,7 +101,7 @@ config {
                 id = 'johnstewart'
                 name = 'John Stewart'
                 email = 'dev@charmedbaryon.tv'
-                roles = [ 'maintainer', 'developer', 'owner' ]
+                roles = ['maintainer', 'developer', 'owner']
                 timezone = 'America/Los_Angeles'
             }
         }
@@ -141,7 +141,7 @@ javadoc.enabled = false
 pluginBundle {
     website = 'https://www.proticity.org'
     vcsUrl = 'https://gitlab.com/proticity/cloud/java-modern-gradle-plugin'
-    tags = [ 'project', 'java', 'cloud', 'gradle', 'plugin', 'build' ]
+    tags = ['project', 'java', 'cloud', 'gradle', 'plugin', 'build']
 }
 
 gradlePlugin {

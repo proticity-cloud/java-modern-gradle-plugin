@@ -1,10 +1,14 @@
 buildscript {
     repositories {
         mavenLocal()
-        gradlePluginPortal()
+        gradlePluginPortal {
+            content {
+                excludeModule('org.proticity.gradle', 'java-modern-gradle-plugin')
+            }
+        }
     }
     dependencies {
-        classpath 'org.proticity.gradle:java-modern-gradle-plugin:0.1.0'
+        classpath 'org.proticity.gradle:java-modern-gradle-plugin:0.1.4'
     }
 }
 
