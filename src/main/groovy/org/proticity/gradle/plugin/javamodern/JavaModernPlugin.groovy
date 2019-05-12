@@ -39,6 +39,7 @@ import org.gradle.api.plugins.quality.CheckstyleExtension
 import org.gradle.api.plugins.quality.CheckstylePlugin
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.authentication.http.HttpHeaderAuthentication
+import org.gradle.plugins.ide.idea.model.IdeaModel
 import org.gradle.plugins.signing.SigningExtension
 import org.gradle.plugins.signing.SigningPlugin
 import org.javamodularity.moduleplugin.ModuleSystemPlugin
@@ -61,6 +62,10 @@ import org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension
 import org.owasp.dependencycheck.reporting.ReportGenerator
 import org.proticity.gradle.plugin.idea.IdeaPlusExtension
 import org.proticity.gradle.plugin.idea.IdeaPlusPlugin
+import org.sonarqube.gradle.SonarQubeExtension
+import org.sonarqube.gradle.SonarQubePlugin
+import org.sonarqube.gradle.SonarQubeProperties
+import org.sonarqube.gradle.SonarQubeTask
 import se.patrikerdes.UseLatestVersionsPlugin
 
 /**
@@ -223,8 +228,8 @@ class JavaModernPlugin implements Plugin<Project> {
                 testSourceDirs += project.sourceSets.functionalTest.java.srcDirs
                 testResourceDirs += project.sourceSets.integrationTest.resources.srcDirs
                 testResourceDirs += project.sourceSets.functionalTest.resources.srcDirs
-                scopes.TEST.plus += [ project.configurations.integrationTestCompile,
-                                      project.configurations.functionalTestCompile ]
+                scopes.TEST.plus += [project.configurations.integrationTestCompile,
+                                     project.configurations.functionalTestCompile]
             }
         }
 
@@ -249,6 +254,7 @@ class JavaModernPlugin implements Plugin<Project> {
         // Configure bug checks
         project.plugins.apply(SpotBugsPlugin)
         project.plugins.apply(DependencyCheckPlugin)
+        project.plugins.apply(SonarQubePlugin)
         project.dependencies.add('spotbugsPlugins',
                 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1')
         project.extensions.findByType(SpotBugsExtension).with {
@@ -264,6 +270,44 @@ class JavaModernPlugin implements Plugin<Project> {
         }
         project.extensions.findByType(DependencyCheckExtension).with {
             format = ReportGenerator.Format.XML
+        }
+        project.extensions.findByType(SonarQubeExtension).with {
+            def testDirs = filterAbsentFiles(project, project.sourceSets.test.allSource.srcDirs)
+            def integrationTestDirs = filterAbsentFiles(project, project.sourceSets.integrationTest.allSource.srcDirs)
+            def functionalTestDirs = filterAbsentFiles(project, project.sourceSets.functionalTest.allSource.srcDirs)
+            testDirs.addAll(integrationTestDirs)
+            testDirs.addAll(functionalTestDirs)
+            def testSourceDirs = testDirs.join(',')
+
+            properties { SonarQubeProperties props ->
+                props.property('sonar.tests', testSourceDirs)
+                props.property('sonar.coverage.jacoco.xmlReportPaths',
+                        "${project.buildDir}/reports/jacoco/jacocoFullReport/jacocoFullReport.xml")
+                props.property('sonar.projectKey', System.getProperty('sonar.projectKey') ?:
+                        "${project.group}:${project.name}")
+                props.property('sonar.login', readProperty(project, 'sonar.login', 'SONAR_LOGIN',
+                        '**UNDEFINED**'))
+                props.property('sonar.host.url', readProperty(project, 'sonar.host.url', 'SONAR_URL',
+                        'https://sonarcloud.io'))
+                props.property('sonar.junit.reportPaths', "${project.buildDir}/test-results/test," +
+                        "${project.buildDir}/test-results/integrationTest," +
+                        "${project.buildDir}/test-results/functionalTest")
+            }
+
+            project.afterEvaluate {
+                if (!properties['sonar.organization'] && !System.getProperty('sonar.organization')) {
+                    try {
+                        System.setProperty('sonar.organization',
+                                kordampExt.info.organization.name.toLowerCase(Locale.ROOT))
+                    } catch (NullPointerException e) {
+                        // Handle unset organization info; not likely since Kordamp encourages setting this.
+                    }
+                }
+            }
+        }
+        project.tasks.withType(SonarQubeTask).each { SonarQubeTask t ->
+            t.dependsOn('test', 'integrationTest', 'functionalTest', 'jacocoTestReport',
+                    'jacocoIntegrationTestReport', 'jacocoFunctionalTestReport', 'jacocoFullReport')
         }
 
         // Configure dependency management
@@ -505,7 +549,11 @@ class JavaModernPlugin implements Plugin<Project> {
      * @return The value of the property.
      */
     private static String readProperty(Project project, String property, String env, String defaultValue) {
-        def prop = project.findProperty(property)
+        def prop = System.getProperty(property)
+        if (prop) {
+            return prop.toString()
+        }
+        prop = project.findProperty(property)
         if (prop) {
             return prop.toString()
         }
@@ -514,5 +562,26 @@ class JavaModernPlugin implements Plugin<Project> {
             return environment
         }
         return defaultValue
+    }
+
+    /**
+     * Apply a filter to a set of files which removes those which do not exist.
+     *
+     * @param fileSet the original file set.
+     *
+     * @return A new set without any files from the original which do not exist.
+     */
+    private static Set<String> filterAbsentFiles(final Project project, final Set<File> fileSet) {
+        def results = new HashSet(fileSet.size())
+        for (def file : fileSet) {
+            if (file.exists()) {
+                if (file.isAbsolute()) {
+                    results.add(file.getPath().substring(project.projectDir.getAbsolutePath().length() + 1))
+                } else {
+                    results.add(file.getPath())
+                }
+            }
+        }
+        return results
     }
 }

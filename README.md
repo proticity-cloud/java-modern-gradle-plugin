@@ -12,7 +12,7 @@ Add to your project by applying via the dependency spec method:
 ```groovy
 plugins {
     id 'java-library'
-    id 'org.proticity.gradle.java-modern' version '0.1.3'
+    id 'org.proticity.gradle.java-modern' version '0.1.5'
 }
 ```
 ...or by adding to your buildscript and applying manually:
@@ -25,7 +25,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'org.proticity:java-modern-gradle-plugin:0.1.3'
+        classpath 'org.proticity:java-modern-gradle-plugin:0.1.5'
     }
 }
 
@@ -37,7 +37,7 @@ The following sampe project shows how simple it is to get a complete Java projec
 ```groovy
 plugins {
     id 'java-library'
-    id 'org.proticity.gradle.java-modern' version '0.1.3'
+    id 'org.proticity.gradle.java-modern' version '0.1.5'
 }
 
 config {
@@ -196,9 +196,16 @@ either the project/system properties `ossrh.user` and `ossrh.password` or the en
 `signing.key` or the environment variable `SIGNING_KEY`. The password for accessing the key is given by the property
 `signing.password` or the environment variable `SIGNING_PASSWORD`.
 
-### SpotBugs Checks
+### Code Quality and Security Checks
 Spotbugs is included automatically, including the FindSecBugs extension. Reports are output in XML for further
-processing (e.g. by the GitLab plugins for merge request integration).
+processing (e.g. by the GitLab plugins for merge request integration). OWASP dependency scans are also available using
+the `dependencyCheckAnalyze` task to find dependencies with known security vulnerabilities.
+
+For more advanced scanning SonarQube support comes bundled. Unless otherwise specified it will default to using
+SonarCloud as the SonarQube host, and your project key will default to `<groupId>:<projectName>` as per the SonarQube
+recommendations. The host can be overridden with the standard properties for the SonarQube plugin or by setting the
+`SONAR_URL` environment variable. Your SonarQube login token also has an environment variable available, the
+`SONAR_LOGIN` variable. If not otherwise specified the organization will default to the project's organization name.
 
 ### Checkstyle Checks
 Checkstyle scans are included by default. Scans are done automatically during the `check` target but it is configured

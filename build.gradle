@@ -15,7 +15,7 @@ dependencies {
     }
 
     // IDEA-Plus plugin for enhanced IDEA integration.
-    implementation 'org.proticity.gradle:idea-plus-gradle-plugin:0.1.0'
+    implementation 'org.proticity.gradle:idea-plus-gradle-plugin:0.1.1'
 
     // Automatically configures Gradle for compiling Jigsaw modules.
     implementation 'org.javamodularity:moduleplugin:1.5.0'
@@ -55,6 +55,7 @@ dependencies {
     // Security and bug checks.
     implementation 'gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.7.1'
     implementation 'org.owasp:dependency-check-gradle:5.0.0-M2'
+    implementation 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.1'
 
     // Spring dependency management to pre-version common dependencies
     implementation 'io.spring.gradle:dependency-management-plugin:1.0.7.RELEASE'
