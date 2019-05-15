@@ -8,7 +8,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'org.proticity.gradle:java-modern-gradle-plugin:0.1.5'
+        classpath 'org.proticity.gradle:java-modern-gradle-plugin:0.1.6'
     }
 }
 

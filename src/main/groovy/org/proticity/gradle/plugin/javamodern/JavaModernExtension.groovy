@@ -32,6 +32,11 @@ class JavaModernExtension {
     CloudExtension cloud
 
     /**
+     * The name of the main branch for the project's repository.
+     */
+    String mainBranch = 'master'
+
+    /**
      * The build project.
      */
     protected final Project project

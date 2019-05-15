@@ -19,7 +19,7 @@ build-jdk8:
   stage: build
   image: openjdk:8-jdk-slim
   script:
-    - ./gradlew -i --stacktrace downloadLicenses test assemble publishPluginMavenPublicationToMavenLocal
+    - ./gradlew -i -S downloadLicenses test assemble publishPluginMavenPublicationToMavenLocal
   artifacts:
     paths:
       - build
@@ -29,7 +29,7 @@ build-jdk11:
   stage: build
   image: openjdk:11-jdk-slim
   script:
-    - ./gradlew -i --stacktrace downloadLicenses test assemble publishPluginMavenPublicationToMavenLocal
+    - ./gradlew -i -S downloadLicenses test assemble publishPluginMavenPublicationToMavenLocal
   allow_failure: true
 
 # Testing configurations
@@ -39,9 +39,9 @@ build-jdk11:
   script:
     - mkdir -p ~/.gradle/caches
     - find ~/.gradle/caches/ -type d -name 'org.proticity.gradle' -prune -exec rm -rf "{}" \; -print
-    - ./gradlew -i --stacktrace assemble publishPluginMavenPublicationToMavenLocal
+    - ./gradlew -i -S assemble publishPluginMavenPublicationToMavenLocal
     - cd jdk8-sample-project
-    - ./gradlew -i --stacktrace assemble spotbugsMain publishMainPublicationToMavenLocal
+    - ./gradlew -i -S assemble spotbugsMain publishMainPublicationToMavenLocal
   cache:
     paths:
       - .gradle
@@ -53,11 +53,11 @@ build-jdk11:
   script:
     - mkdir -p ~/.gradle/caches
     - find ~/.gradle/caches/ -type d -name 'org.proticity.gradle' -prune -exec rm -rf "{}" \; -print
-    - ./gradlew -i --stacktrace assemble publishPluginMavenPublicationToMavenLocal
+    - ./gradlew -i -S assemble publishPluginMavenPublicationToMavenLocal
     - cd jdk8-sample-project
-    - ./gradlew -i --stacktrace assemble spotbugsMain publishMainPublicationToMavenLocal
+    - ./gradlew -i -S assemble spotbugsMain publishMainPublicationToMavenLocal
     - cd ../jdk11-sample-project
-    - ./gradlew -i --stacktrace assemble spotbugsMain publishMainPublicationToMavenLocal
+    - ./gradlew -i -S assemble spotbugsMain publishMainPublicationToMavenLocal
   cache:
     paths:
       - .gradle
@@ -146,7 +146,7 @@ pages:
   dependencies:
     - build-jdk8
   script:
-    - ./gradlew -i --stacktrace -Dgradle.publish.key=${GRADLE_PLUGIN_PUBLISH_KEY} -Dgradle.publish.secret=${GRADLE_PLUGIN_PUBLISH_SECRET} assemble publishPlugins
+    - ./gradlew -i -S -Dgradle.publish.key=${GRADLE_PLUGIN_PUBLISH_KEY} -Dgradle.publish.secret=${GRADLE_PLUGIN_PUBLISH_SECRET} assemble publishPlugins
     - mkdir public
     - mv build/docs/groovydoc public/apidocs
   artifacts:

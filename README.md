@@ -12,7 +12,7 @@ Add to your project by applying via the dependency spec method:
 ```groovy
 plugins {
     id 'java-library'
-    id 'org.proticity.gradle.java-modern' version '0.1.5'
+    id 'org.proticity.gradle.java-modern' version '0.1.6'
 }
 ```
 ...or by adding to your buildscript and applying manually:
@@ -25,7 +25,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'org.proticity:java-modern-gradle-plugin:0.1.5'
+        classpath 'org.proticity:java-modern-gradle-plugin:0.1.6'
     }
 }
 
@@ -37,7 +37,7 @@ The following sampe project shows how simple it is to get a complete Java projec
 ```groovy
 plugins {
     id 'java-library'
-    id 'org.proticity.gradle.java-modern' version '0.1.5'
+    id 'org.proticity.gradle.java-modern' version '0.1.6'
 }
 
 config {
@@ -206,6 +206,10 @@ SonarCloud as the SonarQube host, and your project key will default to `<groupId
 recommendations. The host can be overridden with the standard properties for the SonarQube plugin or by setting the
 `SONAR_URL` environment variable. Your SonarQube login token also has an environment variable available, the
 `SONAR_LOGIN` variable. If not otherwise specified the organization will default to the project's organization name.
+The branch reported to SonarQube will default to the current branch if it can be detected for your CI system (supports
+GitLab, Travis CI, BitBucket, Gerrit, and Jenkins). The target branch will also be set if the pipeline being run is a
+pull/merge request on a supported CI system (GitLab, GitHub w/ Travis CI, BitBucket, Gerrit w/ Jenkins). You can also
+use the `GIT_BRANCH` and `GIT_MERGE_BRANCH` environment variables.
 
 ### Checkstyle Checks
 Checkstyle scans are included by default. Scans are done automatically during the `check` target but it is configured

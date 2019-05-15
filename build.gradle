@@ -1,3 +1,11 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+        jcenter()
+    }
+}
+
 plugins {
     id 'groovy'
 
@@ -10,7 +18,7 @@ plugins {
 
 dependencies {
     implementation gradleApi()
-    implementation('org.codehaus.groovy:groovy-all:2.5.6') {
+    implementation('org.codehaus.groovy:groovy-all:2.5.7') {
         force = true
     }
 

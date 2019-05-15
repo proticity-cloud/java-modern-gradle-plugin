@@ -39,7 +39,6 @@ import org.gradle.api.plugins.quality.CheckstyleExtension
 import org.gradle.api.plugins.quality.CheckstylePlugin
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.authentication.http.HttpHeaderAuthentication
-import org.gradle.plugins.ide.idea.model.IdeaModel
 import org.gradle.plugins.signing.SigningExtension
 import org.gradle.plugins.signing.SigningPlugin
 import org.javamodularity.moduleplugin.ModuleSystemPlugin
@@ -68,6 +67,8 @@ import org.sonarqube.gradle.SonarQubeProperties
 import org.sonarqube.gradle.SonarQubeTask
 import se.patrikerdes.UseLatestVersionsPlugin
 
+import java.nio.file.Paths
+
 /**
  * The plugin which preconfigures Java projects.
  */
@@ -77,7 +78,7 @@ class JavaModernPlugin implements Plugin<Project> {
         def ext = project.extensions.create('javaModern', JavaModernExtension, project)
 
         applyRepositories(project)
-        applyPlugins(project)
+        applyPlugins(project, ext)
         applyDependencyManagement(project, ext.cloud)
     }
 
@@ -94,7 +95,7 @@ class JavaModernPlugin implements Plugin<Project> {
      *
      * @param project the project.
      */
-    private static void applyPlugins(Project project) {
+    private static void applyPlugins(Project project, JavaModernExtension ext) {
         // Apply default plugins.
         project.plugins.apply(CheckstylePlugin)
         project.extensions.findByType(CheckstyleExtension).with {
@@ -167,8 +168,11 @@ class JavaModernPlugin implements Plugin<Project> {
                 pkg.githubRepo = null
             }
         }
-        project.extensions.findByType(PublishingExtension).with {
-            repositories {
+        project.extensions.findByType(PublishingExtension).with { PublishingExtension pubExt ->
+            if (!pubExt) {
+                return
+            }
+            pubExt.repositories {
                 def ciProjectId = System.getenv('CI_PROJECT_ID')
                 if (ciProjectId) {
                     it.maven {
@@ -261,6 +265,13 @@ class JavaModernPlugin implements Plugin<Project> {
             effort = 'max'
             reportLevel = 'low'
             toolVersion = '4.0.0-beta1'
+
+            def spotBugsExclusionPath = Paths.get(project.projectDir.path, 'spotbugs-filter.xml')
+            def spotBugsExclusionFile = new File(spotBugsExclusionPath.toString())
+            if (spotBugsExclusionFile.exists()) {
+                project.logger.info("Found default SpotBugs exclusion file.")
+                excludeFilter = spotBugsExclusionFile
+            }
         }
         project.tasks.withType(SpotBugsTask) {
             reports {
@@ -279,7 +290,27 @@ class JavaModernPlugin implements Plugin<Project> {
             testDirs.addAll(functionalTestDirs)
             def testSourceDirs = testDirs.join(',')
 
+            def sourceBranch = System.getProperty('sonar.branch.name') ?:
+                    project.findProperty('sonar.branch.name') ?:
+                            System.getenv('GIT_BRANCH') ?:
+                                System.getenv('CI_COMMIT_REF_NAME') ?:
+                                        System.getenv('CI_MERGE_REQUEST_SOURCE_BRANCH_NAME') ?:
+                                                System.getenv('TRAVIS_BRANCH') ?:
+                                                        System.getenv('BITBUCKET_BRANCH') ?:
+                                                                    'master'
+            def targetBranch = System.getProperty('sonar.branch.target') ?:
+                    project.findProperty('sonar.branch.target') ?:
+                            System.getenv('GIT_MERGE_BRANCH') ?:
+                                    System.getenv('CI_MERGE_REQUEST_TARGET_BRANCH_NAME') ?:
+                                            System.getenv('TRAVIS_PULL_REQUEST_BRANCH') ?:
+                                                    System.getenv('BITBUCKET_PR_DESTINATION_BRANCH') ?:
+                                                            System.getenv('GERRIT_BRANCH') ?:
+                                                                    'master'
+            project.logger.info("Detected source branch: ${sourceBranch}.")
+            project.logger.info("Detected target branch: ${targetBranch}.")
+
             properties { SonarQubeProperties props ->
+                props.property('sonar.branch.name', sourceBranch)
                 props.property('sonar.tests', testSourceDirs)
                 props.property('sonar.coverage.jacoco.xmlReportPaths',
                         "${project.buildDir}/reports/jacoco/jacocoFullReport/jacocoFullReport.xml")
@@ -295,10 +326,19 @@ class JavaModernPlugin implements Plugin<Project> {
             }
 
             project.afterEvaluate {
-                if (!properties['sonar.organization'] && !System.getProperty('sonar.organization')) {
+                if (!properties.get('sonar.branch.target') && sourceBranch != ext.mainBranch) {
+                    project.logger.info("Source branch ${sourceBranch} is not the main branch and no target set," +
+                            " setting default of ${targetBranch}.")
+                    properties { SonarQubeProperties props ->
+                        props.property('sonar.branch.target', targetBranch)
+                    }
+                }
+                if (!properties.get('sonar.organization')) {
                     try {
-                        System.setProperty('sonar.organization',
-                                kordampExt.info.organization.name.toLowerCase(Locale.ROOT))
+                        properties { SonarQubeProperties props ->
+                            props.property('sonar.organization',
+                                    kordampExt.info.organization.name.toLowerCase(Locale.ROOT))
+                        }
                     } catch (NullPointerException e) {
                         // Handle unset organization info; not likely since Kordamp encourages setting this.
                     }
