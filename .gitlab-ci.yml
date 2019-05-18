@@ -63,22 +63,22 @@ build-jdk11:
       - .gradle
     policy: pull
 
-test-jdk8-openjdk:
+test-jdk8-oracle:
   stage: test
   image: openjdk:8-jdk-slim
   <<: *test-jdk8
 
-test-jdk11-openjdk:
+test-jdk11-oracle:
   stage: test
   image: openjdk:11-jdk-slim
   <<: *test-jdk11
 
-test-jdk12-openjdk:
+test-jdk12-oracle:
   stage: test
   image: openjdk:12-jdk-oracle
   <<: *test-jdk11
 
-test-jdk13ea-openjdk:
+test-jdk13ea-oracle:
   stage: test
   image: openjdk:13-jdk-oracle
   allow_failure: true
@@ -137,6 +137,31 @@ test-jdk11-zulu:
 test-jdk12-zulu:
   stage: test
   image: azul/zulu-openjdk:12
+  <<: *test-jdk11
+
+test-jdk8-liberica:
+  stage: test
+  image: bellsoft/liberica-openjdk-alpine:8
+  <<: *test-jdk8
+
+test-jdk11-liberica:
+  stage: test
+  image: bellsoft/liberica-openjdk-alpine:11
+  <<: *test-jdk11
+
+test-jdk12-liberica:
+  stage: test
+  image: bellsoft/liberica-openjdk-alpine:12
+  <<: *test-jdk11
+
+test-jdk11-sap:
+  stage: test
+  image: sapmachine/lts:11.0.3
+  <<: *test-jdk11
+
+test-jdk12-sap:
+  stage: test
+  image: sapmachine/stable:12.0.1
   <<: *test-jdk11
 
 # Build final result and deploy

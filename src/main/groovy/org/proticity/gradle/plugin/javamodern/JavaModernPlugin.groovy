@@ -527,6 +527,14 @@ class JavaModernPlugin implements Plugin<Project> {
                 entry 'asm-tree'
                 entry 'asm-util'
             }
+
+            // Spring Cloud Streams
+            dependency 'org.springframework.cloud:spring-cloud-stream-binder-kinesis:1.2.0.RELEASE'
+            dependency 'org.springframework.cloud:spring-cloud-stream-binder-kstream:1.3.4.RELEASE'
+            dependency 'org.springframework.cloud:spring-cloud-stream-binder-kstream11:1.3.0.RELEASE'
+            dependency 'org.springframework.cloud:spring-cloud-stream-binder-kafka11:1.3.0.RELEASE'
+            dependency 'org.springframework.cloud:spring-cloud-stream-binder-redis:1.0.0.RELEASE'
+            dependency 'org.springframework.cloud:spring-cloud-stream-binder-solace:1.1.0.RELEASE'
         }
 
         depManagement.imports {
@@ -548,6 +556,7 @@ class JavaModernPlugin implements Plugin<Project> {
             mavenBom "com.google.cloud:google-cloud-bom:${googleCloudVersion}"
 
             // Spring Cloud BOMs
+            mavenBom "org.springframework.cloud:spring-cloud-stream-dependencies:Germantown.RELEASE"
             mavenBom "org.springframework.cloud:spring-cloud-sleuth-dependencies:${springCloudVersion}"
             mavenBom "org.springframework.cloud:spring-cloud-bus-dependencies:${springCloudVersion}"
             mavenBom "org.springframework.cloud:spring-cloud-aws-dependencies:${springCloudVersion}"

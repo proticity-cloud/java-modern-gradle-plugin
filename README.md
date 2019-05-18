@@ -68,23 +68,28 @@ releases supported on each major cloud service (AWS, Microsoft Azure, and Google
 after that one, and the latest JDK (if the latest JDK is not an LTS release). The plugin is tested using builds of a
 test project to support the following releases. 
 
-| JVM      | Source            | JDK Version | Suported Build Releases    | Supported Target Releases |
-| -------- | ----------------- | ----------- | -------------------------- | ------------------------- |
-| Corretto | Amazon            | 8           | Any                        | Any                       |
-| Corretto | Amazon            | 11          | **11.0.3.7.1**<sup>†</sup> | Any                       |
-| OpenJ9   | AdoptOpenJDK      | 8           | Any                        | Any                       |
-| OpenJ9   | AdoptOpenJDK      | 11          | **11.0.3**<sup>†</sup>     | Any                       |
-| OpenJ9   | AdoptOpenJDK      | 12          | **None**<sup>*</sup>       | Any                       |
-| OpenJDK  | AdoptOpenJDK      | 8           | Any                        | Any                       |
-| OpenJDK  | AdoptOpenJDK      | 11          | **11.0.3**<sup>†</sup>     | Any                       |
-| OpenJDK  | AdoptOpenJDK      | 12          | **None**<sup>*</sup>       | Any                       |
-| OpenJDK  | Oracle (Java.net) | 8           | Any                        | Any                       |
-| OpenJDK  | Oracle (Java.net) | 11          | **11.0.3**<sup>†</sup>     | Any                       |
-| OpenJDK  | Oracle (Java.net) | 12          | **12.0.1**<sup>*</sup>     | Any                       |
-| OpenJDK  | Oracle (Java.net) | 13 EA       | **None**                   | **None**                  |
-| Zulu     | Azul              | 8           | Any                        | Any                       |
-| Zulu     | Azul              | 11          | **11.31.11**<sup>†</sup>   | Any                       |
-| Zulu     | Azul              | 12          | **12.2.3**<sup>*</sup>     | Any                       |
+| JVM        | Source            | JDK Version | Suported Build Releases    | Supported Target Releases |
+| ---------- | ----------------- | ----------- | -------------------------- | ------------------------- |
+| Corretto   | Amazon            | 8           | Any                        | Any                       |
+| Corretto   | Amazon            | 11          | **11.0.3.7.1**<sup>†</sup> | Any                       |
+| Liberica   | Bellsoft          | 8           | Any                        | Any                       |
+| Liberica   | Bellsoft          | 11          | **11.31.11**<sup>†</sup>   | Any                       |
+| Liberica   | Bellsoft          | 12          | **12.2.3**<sup>*</sup>     | Any                       |
+| OpenJ9     | AdoptOpenJDK      | 8           | Any                        | Any                       |
+| OpenJ9     | AdoptOpenJDK      | 11          | **11.0.3**<sup>†</sup>     | Any                       |
+| OpenJ9     | AdoptOpenJDK      | 12          | **None**<sup>*</sup>       | Any                       |
+| OpenJDK    | AdoptOpenJDK      | 8           | Any                        | Any                       |
+| OpenJDK    | AdoptOpenJDK      | 11          | **11.0.3**<sup>†</sup>     | Any                       |
+| OpenJDK    | AdoptOpenJDK      | 12          | **None**<sup>*</sup>       | Any                       |
+| OpenJDK    | Oracle (Java.net) | 8           | Any                        | Any                       |
+| OpenJDK    | Oracle (Java.net) | 11          | **11.0.3**<sup>†</sup>     | Any                       |
+| OpenJDK    | Oracle (Java.net) | 12          | **12.0.1**<sup>*</sup>     | Any                       |
+| OpenJDK    | Oracle (Java.net) | 13 EA       | **None**                   | **None**                  |
+| SAPMachine | SAP               | 11          | **11.31.11**<sup>†</sup>   | Any                       |
+| SAPMachine | SAP               | 12          | **12.0.1**<sup>*</sup>     | Any                       |
+| Zulu       | Azul              | 8           | Any                        | Any                       |
+| Zulu       | Azul              | 11          | **11.31.11**<sup>†</sup>   | Any                       |
+| Zulu       | Azul              | 12          | **12.2.3**<sup>*</sup>     | Any                       |
 
 <small><sup><sup>†</sup> `javadoc` may fail on Java 11.0.1 through 11.0.2 due to a bug which prevents JavaDoc from
 running on projects with a `module-info.java` file. It will fail on all releases of Java 11 when a dependency is a
