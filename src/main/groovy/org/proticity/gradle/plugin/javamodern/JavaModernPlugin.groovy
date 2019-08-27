@@ -127,10 +127,20 @@ class JavaModernPlugin implements Plugin<Project> {
         downloadLicensesExt.dependencyConfiguration = 'runtimeClasspath'
         downloadLicensesExt.includeProjectDependencies = true
 
+        // Setup signatures.
+        def signingKey = readProperty(project, 'signing.key', 'SIGNING_KEY', null)
+        if (signingKey != null) {
+            project.plugins.apply(SigningPlugin)
+            project.extensions.findByType(SigningExtension).with {
+                useInMemoryPgpKeys(
+                        signingKey,
+                        readProperty(project, 'signing.password', 'SIGNING_PASSWORD', ''))
+            }
+        }
+
         // Configure Kordamp's publishing support.
         project.plugins.apply(PublishingPlugin)
         project.plugins.apply(BintrayPlugin)
-        project.plugins.apply(SigningPlugin)
         // Predefine Sonatype OSSRH repositories for potential publishing.
         kordampExt.info {
             repositories {
@@ -157,11 +167,6 @@ class JavaModernPlugin implements Plugin<Project> {
                 username = readProperty(project, 'bintray.user', 'BINTRAY_USER', '**UNDEFINED**')
                 password = readProperty(project, 'bintray.key', 'BINTRAY_KEY', '**UNDEFINED**')
             }
-        }
-        project.extensions.findByType(SigningExtension).with {
-            useInMemoryPgpKeys(
-                    readProperty(project, 'signing.key', 'SIGNING_KEY', '**UNDEFINED**'),
-                    readProperty(project, 'signing.password', 'SIGNING_PASSWORD', ''))
         }
         project.afterEvaluate {
             project.extensions.findByType(BintrayExtension).with {
@@ -369,56 +374,56 @@ class JavaModernPlugin implements Plugin<Project> {
         project.logger.debug('Configuring dependency management')
         def depManagement = project.extensions.findByType(DependencyManagementExtension)
 
-        def googleCloudVersion = '0.88.0-alpha'
-        def springCloudVersion = '2.1.1.RELEASE'
-        def jacksonVersion = '2.9.8'
-        def hibernateVersion = '5.4.1.Final'
+        def googleCloudVersion = '0.106.0-alpha'
+        def springCloudVersion = '2.1.2.RELEASE'
+        def jacksonVersion = '2.10.0pr1'
+        def hibernateVersion = '5.4.4.Final'
         def kafkaVersion = cloudExt.getTargetKafkaVersion()
         def zookeeperVersion = cloudExt.getTargetZookeeperVersion()
         def elasticSearchVersion = cloudExt.getTargetElasticsearchVersion()
 
         depManagement.dependencies {
             // Utilities
-            dependency 'org.apache.commons:commons-lang3:3.8.1'
-            dependency 'org.apache.commons:commons-collections4:4.3'
-            dependency 'org.apache.commons:commons-compress:1.18'
+            dependency 'org.apache.commons:commons-lang3:3.9'
+            dependency 'org.apache.commons:commons-collections4:4.4'
+            dependency 'org.apache.commons:commons-compress:1.19'
             dependency 'org.apache.commons:commons-exec:1.3'
             dependency 'commons-io:commons-io:2.6'
-            dependency 'commons-codec:commons-codec:1.12'
-            dependency 'commons-math:commons-math:20040218.045431'
-            dependency 'com.google.guava:guava:27.1-jre'
+            dependency 'commons-codec:commons-codec:1.13'
+            dependency 'commons-math:commons-math:1.2'
+            dependency 'com.google.guava:guava:28.0-jre'
             dependency 'com.google.inject:guice:4.2.2'
 
             // Testing dependencies
-            dependencySet(group: 'org.junit.jupiter', version: '5.1.0') {
+            dependencySet(group: 'org.junit.jupiter', version: '5.5.1') {
                 entry 'junit-jupiter-api'
                 entry 'junit-jupiter-engine'
             }
-            dependency 'org.testng:testng:7.0.0-beta4'
-            dependencySet(group: 'org.mockito', version: '2.27.0') {
+            dependency 'org.testng:testng:7.0.0'
+            dependencySet(group: 'org.mockito', version: '3.0.0') {
                 entry 'mockito-core'
                 entry 'mockito-junit-jupiter'
             }
             dependency 'org.mockito:mockito-testng:0.1.1'
-            dependency 'org.jmockit:jmockit:1.46'
+            dependency 'org.jmockit:jmockit:1.47'
             dependency 'org.easymock:easymock:4.0.2'
             dependency 'com.google.code.findbugs:jsr305:3.0.2'
 
             // Reactive streams tools
-            dependency 'io.reactor:reactor-core:3.2.8.RELEASE'
-            dependency 'io.projectreactor.netty:reactor-netty:0.8.4.RELEASE'
-            dependency 'io.reactivex.rxjava2:rxjava:2.2.8'
-            dependency 'io.reactivex.rxjava:rxkotlin:2.3.0'
+            dependency 'io.reactor:reactor-core:3.2.11.RELEASE'
+            dependency 'io.projectreactor.netty:reactor-netty:0.8.10.RELEASE'
+            dependency 'io.reactivex.rxjava2:rxjava:2.2.12'
+            dependency 'io.reactivex.rxjava:rxkotlin:2.4.0'
 
             // Application insights
             dependency 'org.slf4j:slf4j-api:1.7.26'
-            dependency 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.2'
+            dependency 'org.apache.logging.log4j:log4j-slf4j-impl:2.12.1'
             dependency 'com.github.speedwing:log4j-cloudwatch-appender:0.1.0'
             dependency 'ch.qos.logback:logback-classic:1.3.0-alpha4'
-            dependency 'io.github.dibog:cloudwatch-logback-appender:1.0.6'
-            dependency 'com.microsoft.azure:applicationinsights-logging-logback:2.4.0-BETA'
+            dependency 'io.github.dibog:cloudwatch-logback-appender:2.0.0'
+            dependency 'com.microsoft.azure:applicationinsights-logging-logback:2.5.0-BETA.3'
             dependency "com.google.cloud:google-cloud-logging-logback:${googleCloudVersion}"
-            dependencySet(group: 'io.micrometer', version: '1.1.4') {
+            dependencySet(group: 'io.micrometer', version: '1.2.0') {
                 entry 'micrometer-core'
                 entry 'micrometer-registry-influx'
                 entry 'micrometer-registry-datadog'
@@ -429,12 +434,13 @@ class JavaModernPlugin implements Plugin<Project> {
                 entry 'micrometer-registry-azure-monitor'
                 entry 'micrometer-registry-stackdriver'
             }
-            dependency 'io.opentracing:opentracing-api:0.32.0'
-            dependency 'io.opentracing.contrib:opentracing-aws-sdk:0.1.0'
+            dependency 'io.opentracing:opentracing-api:0.33.0'
+            dependency 'io.opentracing.contrib:opentracing-aws-sdk-2:0.1.2'
+            dependency 'io.opentracing.contrib:opentracing-aws-sdk-1:0.1.2'
             dependency 'io.opentracing.contrib:opentracing-metrics:0.3.0'
 
             // Security
-            dependencySet(group: 'org.bouncycastle', version: '1.61') {
+            dependencySet(group: 'org.bouncycastle', version: '1.62') {
                 entry 'bcprov-jdk15on'
                 entry 'bcprov-ext-jdk15on'
                 entry 'bcpkix-jdk15on'
@@ -452,12 +458,12 @@ class JavaModernPlugin implements Plugin<Project> {
             dependency 'com.google.code.gson:gson:2.8.5'
             dependency 'javax.xml.bind:jaxb-api:2.3.1'
             dependency 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
-            dependency 'org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3'
+            dependency 'org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.4'
             dependency 'xerces:xercesImpl:2.12.0'
 
             // Network frameworks
             dependency 'javax.servlet:javax.servlet-api:4.0.1'
-            dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.19') {
+            dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.24') {
                 entry 'tomcat-embed-core'
                 entry 'tomcat-embed-jasper'
                 entry 'tomcat-embed-el'
@@ -466,41 +472,43 @@ class JavaModernPlugin implements Plugin<Project> {
 
             // Persistence
             dependency 'com.github.derjust:spring-data-dynamodb:5.1.0'
-            dependency 'com.microsoft.spring.data.gremlin:spring-data-gremlin:2.0.0'
-            dependency 'io.r2dbc:r2dbc-postgresql:1.0.0.M5'
-            dependency 'io.r2dbc:r2dbc-mssql:1.0.0.BUILD-SNAPSHOT'
-            dependency 'io.r2dbc:r2dbc-h2:1.0.0.BUILD-SNAPSHOT'
-            dependency 'org.postgresql:postgresql:42.2.5'
-            dependency 'mysql:mysql-connector-java:8.0.15'
-            dependency 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
-            if (getJavaRelease(project) >= JavaVersion.VERSION_11) {
-                dependency 'com.microsoft.sqlserver:mssql-jdbc:7.2.2.jre11'
+            dependency 'com.microsoft.spring.data.gremlin:spring-data-gremlin:2.1.7'
+            dependency 'io.r2dbc:r2dbc-postgresql:1.0.0.M7'
+            dependency 'io.r2dbc:r2dbc-mssql:1.0.0.M7'
+            dependency 'io.r2dbc:r2dbc-h2:1.0.0.M7'
+            dependency 'org.postgresql:postgresql:42.2.6'
+            dependency 'mysql:mysql-connector-java:8.0.17'
+            dependency 'org.mariadb.jdbc:mariadb-java-client:2.4.3'
+            if (getJavaRelease(project) >= JavaVersion.VERSION_12) {
+                dependency 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre12'
+            } else if (getJavaRelease(project) >= JavaVersion.VERSION_11) {
+                dependency 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre11'
             } else {
-                dependency 'com.microsoft.sqlserver:mssql-jdbc:7.2.2.jre8'
+                dependency 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8'
             }
-            dependency 'org.hsqldb:hsqldb:2.4.1'
+            dependency 'org.hsqldb:hsqldb:2.5.0'
             dependency 'com.h2database:h2:1.4.199'
-            dependencySet(group: 'com.datastax.oss', version: '4.0.1') { // Cassandra
+            dependencySet(group: 'com.datastax.oss', version: '4.2.0') { // Cassandra
                 entry 'java-driver-core'
                 entry 'java-driver-query-driver'
             }
-            dependencySet(group: 'org.mongodb', version: '3.10.1') {
+            dependencySet(group: 'org.mongodb', version: '3.11.0') {
                 entry 'mongodb-driver-sync'
                 entry 'mongodb-driver-async'
             }
             dependency "org.elasticsearch.client:transport:${elasticSearchVersion}"
-            dependency 'redis.clients:jedis:3.1.0-m1'
-            dependency 'io.lettuce:lettuce-core:5.1.6.RELEASE'
-            dependency 'org.neo4j:neo4j-java-driver:1.7.3'
+            dependency 'redis.clients:jedis:3.1.0'
+            dependency 'io.lettuce:lettuce-core:5.1.8.RELEASE'
+            dependency 'org.neo4j.driver:neo4j-java-driver:4.0.0-beta01'
             dependency 'org.neo4j:neo4j-jdbc-driver:3.4.0'
             dependency "org.hibernate:hibernate-core:${hibernateVersion}"
-            dependency 'org.hibernate.validator:hibernate-validator:6.0.16.Final'
+            dependency 'org.hibernate.validator:hibernate-validator:6.0.17.Final'
             dependency 'org.eclipse.persistence:eclipselink:2.7.4'
 
             // Integration
             dependency 'javax.jms:jms-api:1.1-rev-1'
             dependency 'org.zeromq:jeromq:0.5.1'
-            dependency 'com.rabbitmq:amqp-client:5.7.0'
+            dependency 'com.rabbitmq:amqp-client:5.7.3'
             dependencySet(group: 'org.apache.kafka', version: kafkaVersion) {
                 entry 'kafka-streams'
                 entry 'kafka-clients'
@@ -511,7 +519,7 @@ class JavaModernPlugin implements Plugin<Project> {
                 entry 'kafka-log4j-appender'
             }
             dependency "org.apache.zookeeper:zookeeper:${zookeeperVersion}"
-            dependencySet(group: 'org.apache.zookeeper', version: '4.2.0') {
+            dependencySet(group: 'org.apache.curator', version: '4.2.0') {
                 entry 'curator-framework'
                 entry 'curator-recipes'
                 entry 'curator-client'
@@ -534,24 +542,23 @@ class JavaModernPlugin implements Plugin<Project> {
             dependency 'org.springframework.cloud:spring-cloud-stream-binder-kstream11:1.3.0.RELEASE'
             dependency 'org.springframework.cloud:spring-cloud-stream-binder-kafka11:1.3.0.RELEASE'
             dependency 'org.springframework.cloud:spring-cloud-stream-binder-redis:1.0.0.RELEASE'
-            dependency 'org.springframework.cloud:spring-cloud-stream-binder-solace:1.1.0.RELEASE'
         }
 
         depManagement.imports {
             // Sprint Boot
-            mavenBom 'org.springframework.boot:spring-boot-dependencies:2.1.4.RELEASE'
+            mavenBom 'org.springframework.boot:spring-boot-dependencies:2.1.7.RELEASE'
 
             // Network frameworks
-            mavenBom 'io.netty:netty-bom:4.1.35.Final'
-            mavenBom 'org.eclipse.jetty:jetty-bom:9.4.17.v20190418'
+            mavenBom 'io.netty:netty-bom:4.1.39.Final'
+            mavenBom 'org.eclipse.jetty:jetty-bom:9.4.20.v20190813'
 
             // Persistence
-            mavenBom 'org.springframework.data:spring-data-releasetrain:Lovelace-RELEASE'
-            mavenBom "org.hibernate.ogm:hibernate-ogm-bom:${hibernateVersion}"
+            mavenBom 'org.springframework.data:spring-data-releasetrain:Lovelace-SR10'
+            mavenBom "org.hibernate.ogm:hibernate-ogm-bom:5.4.1.Final"
 
             // Public cloud SDKs
-            mavenBom 'com.amazonaws:aws-java-sdk-bom:1.11.327'
-            mavenBom 'software.amazon.awssdk:bom:2.5.27'
+            mavenBom 'com.amazonaws:aws-java-sdk-bom:1.11.620'
+            mavenBom 'software.amazon.awssdk:bom:2.7.33'
             mavenBom 'com.microsoft.azure:azure-bom:1.0.0.M1'
             mavenBom "com.google.cloud:google-cloud-bom:${googleCloudVersion}"
 
@@ -563,11 +570,11 @@ class JavaModernPlugin implements Plugin<Project> {
             mavenBom "org.springframework.cloud:spring-cloud-task-dependencies:${springCloudVersion}"
             mavenBom "org.springframework.cloud:spring-cloud-security-dependencies:${springCloudVersion}"
             mavenBom "org.springframework.cloud:spring-cloud-netflix-dependencies:${springCloudVersion}"
-            mavenBom 'org.springframework.cloud:spring-cloud-function-dependencies:2.0.1.RELEASE'
-            mavenBom 'org.springframework.cloud:spring-cloud-gcp-dependencies:1.1.1.RELEASE'
+            mavenBom 'org.springframework.cloud:spring-cloud-function-dependencies:2.1.1.RELEASE'
+            mavenBom 'org.springframework.cloud:spring-cloud-gcp-dependencies:1.1.2.RELEASE'
 
             // Integration
-            mavenBom 'io.grpc:grpc-bom:1.20.0'
+            mavenBom 'io.grpc:grpc-bom:1.23.0'
         }
     }
 

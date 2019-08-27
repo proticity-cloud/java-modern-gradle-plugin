@@ -156,12 +156,12 @@ test-jdk12-liberica:
 
 test-jdk11-sap:
   stage: test
-  image: sapmachine/lts:11.0.3
+  image: sapmachine/lts:latest
   <<: *test-jdk11
 
 test-jdk12-sap:
   stage: test
-  image: sapmachine/stable:12.0.1
+  image: sapmachine/stable:latest
   <<: *test-jdk11
 
 # Build final result and deploy

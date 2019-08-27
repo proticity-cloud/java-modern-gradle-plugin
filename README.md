@@ -12,7 +12,7 @@ Add to your project by applying via the dependency spec method:
 ```groovy
 plugins {
     id 'java-library'
-    id 'org.proticity.gradle.java-modern' version '0.1.6'
+    id 'org.proticity.gradle.java-modern' version '0.1.8'
 }
 ```
 ...or by adding to your buildscript and applying manually:
@@ -25,7 +25,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'org.proticity:java-modern-gradle-plugin:0.1.6'
+        classpath 'org.proticity:java-modern-gradle-plugin:0.1.8'
     }
 }
 
@@ -37,7 +37,7 @@ The following sampe project shows how simple it is to get a complete Java projec
 ```groovy
 plugins {
     id 'java-library'
-    id 'org.proticity.gradle.java-modern' version '0.1.6'
+    id 'org.proticity.gradle.java-modern' version '0.1.8'
 }
 
 config {
