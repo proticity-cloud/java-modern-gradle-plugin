@@ -376,7 +376,7 @@ class JavaModernPlugin implements Plugin<Project> {
 
         def googleCloudVersion = '0.106.0-alpha'
         def springCloudVersion = '2.1.2.RELEASE'
-        def jacksonVersion = '2.10.0pr1'
+        def jacksonVersion = '2.10.0.pr1'
         def hibernateVersion = '5.4.4.Final'
         def kafkaVersion = cloudExt.getTargetKafkaVersion()
         def zookeeperVersion = cloudExt.getTargetZookeeperVersion()

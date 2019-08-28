@@ -37,7 +37,7 @@ The following sampe project shows how simple it is to get a complete Java projec
 ```groovy
 plugins {
     id 'java-library'
-    id 'org.proticity.gradle.java-modern' version '0.1.8'
+    id 'org.proticity.gradle.java-modern' version '0.1.9'
 }
 
 config {
