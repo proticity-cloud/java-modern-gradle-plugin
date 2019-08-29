@@ -1,0 +1,27 @@
+language: java
+
+dist: bionic
+os:
+  - linux
+  - macos
+jdk:
+  - oraclejdk8
+  - oraclejdk11
+  - oraclejdk12
+  - openjdk11
+  - openjdk12
+  - openjdk-ea
+matrix:
+  allow_failures:
+    - jdk: openjdk-ea
+
+before_cache:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+  - export M2_HOME=`pwd`/.m2
+cache:
+  directories:
+    - .gradle
+    - $HOME/.m2
+
+script:
+  - ./gradlew -i -S downloadLicenses test assemble publishPluginMavenPublicationToMavenLocal
