@@ -302,7 +302,8 @@ class JavaModernPlugin implements Plugin<Project> {
                                         System.getenv('CI_MERGE_REQUEST_SOURCE_BRANCH_NAME') ?:
                                                 System.getenv('TRAVIS_BRANCH') ?:
                                                         System.getenv('BITBUCKET_BRANCH') ?:
-                                                                    'master'
+                                                                System.getenv("CIRCLE_BRANCH") ?:
+                                                                        'master'
             def targetBranch = System.getProperty('sonar.branch.target') ?:
                     project.findProperty('sonar.branch.target') ?:
                             System.getenv('GIT_MERGE_BRANCH') ?:
@@ -342,7 +343,8 @@ class JavaModernPlugin implements Plugin<Project> {
                     try {
                         properties { SonarQubeProperties props ->
                             props.property('sonar.organization',
-                                    kordampExt.info.organization.name.toLowerCase(Locale.ROOT))
+                                    readProperty(project, 'sonar.organization', 'SONAR_ORGANIZATION',
+                                            kordampExt.info.organization.name.toLowerCase(Locale.ROOT)))
                         }
                     } catch (NullPointerException e) {
                         // Handle unset organization info; not likely since Kordamp encourages setting this.
