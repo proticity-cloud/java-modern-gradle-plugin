@@ -397,7 +397,7 @@ class JavaModernPlugin implements Plugin<Project> {
             dependency 'com.google.inject:guice:4.2.2'
 
             // Testing dependencies
-            dependencySet(group: 'org.junit.jupiter', version: '5.5.1') {
+            dependencySet(group: 'org.junit.jupiter', version: '5.3.2') {
                 entry 'junit-jupiter-api'
                 entry 'junit-jupiter-engine'
             }
