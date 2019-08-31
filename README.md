@@ -272,6 +272,18 @@ the version numbers of a release via environment variables rather than just prop
 declared then you can use the variables `GRADLE_RELEASE_VERSION` and `GRADLE_RELEASE_NEW_VERSION` instead. Automatic
 versioning is enabled when both environment variables are present.
 
+Java Modern assumes you are using an automated continuous integration-based method for running your release process.
+A release build is assumed to have already undergone CI pipelines, and so by default Java Modern attempts to avoid
+running CI again (particularly on intermediate commits in the release process). When attempting to skip the CI runs it
+will prepend "[ci skip] [skip ci]" to your commit message, which common CI platforms use to avoid triggering a build.
+This behavior can be disabled by using:
+
+```groovy
+javaModern {
+    skipReleaseCi = false
+}
+```
+
 ### Licence Management
 Includes the Kordamp licensing plugin. This integrates license header checks into the `build` task and is preconfigured
 to use the file `gradle/LICENSE_HEADER` in your project. It can also automatically add matching headers.

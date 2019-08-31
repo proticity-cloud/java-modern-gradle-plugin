@@ -37,6 +37,11 @@ class JavaModernExtension {
     String mainBranch = 'master'
 
     /**
+     * Whether to skip CI on release commits (defaults to true).
+     */
+    boolean skipReleaseCi = true;
+
+    /**
      * The build project.
      */
     protected final Project project

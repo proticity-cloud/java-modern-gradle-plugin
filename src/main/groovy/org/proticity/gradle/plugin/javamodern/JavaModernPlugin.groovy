@@ -257,6 +257,9 @@ class JavaModernPlugin implements Plugin<Project> {
         project.plugins.apply(ReleasePlugin)
         project.extensions.findByType(ReleaseExtension).with {
             failOnUnversionedFiles = false
+            if (ext.skipReleaseCi) {
+                preCommitText = '[ci skip] [skip ci] '
+            }
         }
 
         // Configure bug checks
