@@ -72,7 +72,6 @@ dependencies {
     implementation 'org.kordamp.gradle:testing-gradle-plugin:0.25.0'
     implementation 'org.kordamp.gradle:integrationtest-gradle-plugin:0.25.0'
     implementation 'org.kordamp.gradle:functionaltest-gradle-plugin:0.25.0'
-    implementation 'gradle.plugin.com.palantir:jacoco-coverage:0.4.0'
     implementation 'org.kordamp.gradle:jacoco-gradle-plugin:0.25.0'
 
     // Support for automated releases.

@@ -24,7 +24,6 @@ import com.github.spotbugs.SpotBugsExtension
 import com.github.spotbugs.SpotBugsPlugin
 import com.github.spotbugs.SpotBugsTask
 import com.jfrog.bintray.gradle.BintrayExtension
-import com.palantir.jacoco.JacocoFullReportPlugin
 import io.spring.gradle.dependencymanagement.DependencyManagementPlugin
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import net.researchgate.release.ReleaseExtension
@@ -41,6 +40,7 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.authentication.http.HttpHeaderAuthentication
 import org.gradle.plugins.signing.SigningExtension
 import org.gradle.plugins.signing.SigningPlugin
+import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.javamodularity.moduleplugin.ModuleSystemPlugin
 import org.kordamp.gradle.plugin.base.BasePlugin
 import org.kordamp.gradle.plugin.base.ProjectConfigurationExtension
@@ -224,7 +224,6 @@ class JavaModernPlugin implements Plugin<Project> {
         project.plugins.apply(IntegrationTestPlugin)
         project.plugins.apply(FunctionalTestPlugin)
         project.plugins.apply(JacocoPlugin)
-        project.plugins.apply(JacocoFullReportPlugin)
 
         // IDEA plugin MUST not be applied when Kordamp's Integration and Functional test plugins are loaded. It must
         // come after. This is a side effect of the way Kordamp will configure the plugin if it is detected as applied
@@ -298,12 +297,12 @@ class JavaModernPlugin implements Plugin<Project> {
             def sourceBranch = System.getProperty('sonar.branch.name') ?:
                     project.findProperty('sonar.branch.name') ?:
                             System.getenv('GIT_BRANCH') ?:
-                                System.getenv('CI_COMMIT_REF_NAME') ?:
-                                        System.getenv('CI_MERGE_REQUEST_SOURCE_BRANCH_NAME') ?:
-                                                System.getenv('TRAVIS_BRANCH') ?:
-                                                        System.getenv('BITBUCKET_BRANCH') ?:
-                                                                System.getenv("CIRCLE_BRANCH") ?:
-                                                                        'master'
+                                    System.getenv('CI_COMMIT_REF_NAME') ?:
+                                            System.getenv('CI_MERGE_REQUEST_SOURCE_BRANCH_NAME') ?:
+                                                    System.getenv('TRAVIS_BRANCH') ?:
+                                                            System.getenv('BITBUCKET_BRANCH') ?:
+                                                                    System.getenv("CIRCLE_BRANCH") ?:
+                                                                            'master'
             def targetBranch = System.getProperty('sonar.branch.target') ?:
                     project.findProperty('sonar.branch.target') ?:
                             System.getenv('GIT_MERGE_BRANCH') ?:
@@ -319,7 +318,9 @@ class JavaModernPlugin implements Plugin<Project> {
                 props.property('sonar.branch.name', sourceBranch)
                 props.property('sonar.tests', testSourceDirs)
                 props.property('sonar.coverage.jacoco.xmlReportPaths',
-                        "${project.buildDir}/reports/jacoco/jacocoFullReport/jacocoFullReport.xml")
+                        "${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml," +
+                                "${project.buildDir}/reports/jacoco/functionalTest/jacocoFunctionalTestReport.xml," +
+                                "${project.buildDir}/reports/jacoco/integrationTest/jacocoIntegrationTestReport.xml")
                 props.property('sonar.projectKey', System.getProperty('sonar.projectKey') ?:
                         "${project.group}:${project.name}")
                 props.property('sonar.login', readProperty(project, 'sonar.login', 'SONAR_LOGIN',
@@ -354,7 +355,7 @@ class JavaModernPlugin implements Plugin<Project> {
         }
         project.tasks.withType(SonarQubeTask).each { SonarQubeTask t ->
             t.dependsOn('test', 'integrationTest', 'functionalTest', 'jacocoTestReport',
-                    'jacocoIntegrationTestReport', 'jacocoFunctionalTestReport', 'jacocoFullReport')
+                    'jacocoIntegrationTestReport', 'jacocoFunctionalTestReport')
         }
 
         // Configure dependency management
