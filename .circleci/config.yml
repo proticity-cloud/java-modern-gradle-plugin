@@ -1,0 +1,237 @@
+version: 2.1
+
+job-template: &job-template
+  working_directory: ~/java-modern-gradle-plugin
+  environment:
+    JVM_OPTS: -Xmx3200m
+    TERM: dumb
+
+build-job-template: &build-job-template
+  <<: *job-template
+  steps:
+    - checkout
+    - restore_cache:
+        keys:
+          - cache-{{ checksum "build.gradle" }}-{{ checksum "settings.gradle" }}-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+    - run:
+        name: Assemble
+        command: ./gradlew -i -S downloadLicenses test assemble publishPluginMavenPublicationToMavenLocal
+    - save_cache:
+        paths:
+          - ~/.gradle
+          - ~/.m2/repository
+        key: cache-{{ checksum "build.gradle" }}-{{ checksum "settings.gradle" }}-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+    - store_artifacts:
+        path: ./build/libs/
+    - persist_to_workspace:
+        root: ./
+        paths:
+          - build
+
+test-job-template: &test-job-template
+  <<: *job-template
+  steps:
+    - checkout
+    - run:
+        name: Ensure CA Certificates
+        command: if command -v apk > /dev/null; then apk add ca-certificates; fi; if command -v apt-get > /dev/null; then apt-get update; apt-get install -y ca-certificates; fi
+    - restore_cache:
+        keys:
+          - cache-{{ checksum "build.gradle" }}-{{ checksum "settings.gradle" }}-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+    - run:
+        name: Clear Caches
+        command: mkdir -p ~/.gradle/caches && find ~/.gradle/caches/ -type d -name 'org.proticity.gradle' -prune -exec rm -rf "{}" \; -print
+    - run:
+        name: Assemble Plugin
+        command: ./gradlew -i -S assemble publishPluginMavenPublicationToMavenLocal
+    - run:
+        name: Test Sample Project
+        command: cd $SAMPLE_PROJECT_DIR && ./gradlew -i -S assemble spotbugsMain publishMainPublicationToMavenLocal
+
+test-job-template-jdk8: &test-job-template-jdk8
+  <<: *test-job-template
+  environment:
+    SAMPLE_PROJECT_DIR: jdk8-sample-project
+
+test-job-template-jdk11: &test-job-template-jdk11
+  <<: *test-job-template
+  environment:
+    SAMPLE_PROJECT_DIR: jdk11-sample-project
+
+jobs:
+  build-jdk8:
+    <<: *build-job-template
+    docker:
+      - image: openjdk:8-jdk
+  build-jdk11:
+    <<: *build-job-template
+    docker:
+      - image: openjdk:11-jdk
+  test-jdk8-openjdk:
+    <<: *test-job-template-jdk8
+    docker:
+      - image: openjdk:8-jdk
+  test-jdk11-openjdk:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: openjdk:11-jdk
+  test-jdk12-openjdk:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: openjdk:12-jdk-oracle
+  test-jdk13-openjdk:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: openjdk:13-jdk-oracle
+  test-jdk14-openjdk:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: openjdk:14-jdk-oracle
+  test-jdk8-adoptopenjdk:
+    <<: *test-job-template-jdk8
+    docker:
+      - image: adoptopenjdk/openjdk8:alpine
+  test-jdk11-adoptopenjdk:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: adoptopenjdk/openjdk11:alpine
+  test-jdk12-adoptopenjdk:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: adoptopenjdk/openjdk12:alpine
+  test-jdk8-openj9:
+    <<: *test-job-template-jdk8
+    docker:
+      - image: adoptopenjdk/openjdk8-openj9:alpine
+  test-jdk11-openj9:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: adoptopenjdk/openjdk11-openj9:alpine
+  test-jdk12-openj9:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: adoptopenjdk/openjdk12-openj9:alpine
+  test-jdk8-corretto:
+    <<: *test-job-template-jdk8
+    docker:
+      - image: amazoncorretto:8
+  test-jdk11-corretto:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: amazoncorretto:11
+  test-jdk8-zulu:
+    <<: *test-job-template-jdk8
+    docker:
+      - image: azul/zulu-openjdk:8
+  test-jdk11-zulu:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: azul/zulu-openjdk:11
+  test-jdk12-zulu:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: azul/zulu-openjdk:12
+  test-jdk8-liberica:
+    <<: *test-job-template-jdk8
+    docker:
+      - image: bellsoft/liberica-openjdk-alpine:8
+  test-jdk11-liberica:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: bellsoft/liberica-openjdk-alpine:11
+  test-jdk12-liberica:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: bellsoft/liberica-openjdk-alpine:12
+  test-jdk11-sap:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: sapmachine/lts:latest
+  test-jdk12-sap:
+    <<: *test-job-template-jdk11
+    docker:
+      - image: sapmachine/stable:latest
+  release:
+    <<: *job-template
+    docker:
+      - image: openjdk:8-jdk
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - cache-{{ checksum "build.gradle" }}-{{ checksum "settings.gradle" }}-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - run:
+          name: Publish
+          command: ./gradlew -i -S -Dgradle.publish.key=${GRADLE_PLUGIN_PUBLISH_KEY} -Dgradle.publish.secret=${GRADLE_PLUGIN_PUBLISH_SECRET} assemble publishPlugins
+
+workflows:
+  version: 2.1
+  ci:
+    jobs:
+      - build-jdk8
+      - build-jdk11
+      - test-jdk8-openjdk:
+          requires:
+            - build-jdk8
+      - test-jdk11-openjdk:
+          requires:
+            - build-jdk8
+      - test-jdk12-openjdk:
+          requires:
+            - build-jdk8
+      - test-jdk8-adoptopenjdk:
+          requires:
+            - build-jdk8
+      - test-jdk11-adoptopenjdk:
+          requires:
+            - build-jdk8
+      - test-jdk12-adoptopenjdk:
+          requires:
+            - build-jdk8
+      - test-jdk8-openj9:
+          requires:
+            - build-jdk8
+      - test-jdk11-openj9:
+          requires:
+            - build-jdk8
+      - test-jdk12-openj9:
+          requires:
+            - build-jdk8
+      - test-jdk8-corretto:
+          requires:
+            - build-jdk8
+      - test-jdk11-corretto:
+          requires:
+            - build-jdk8
+      - test-jdk8-zulu:
+          requires:
+            - build-jdk8
+      - test-jdk11-zulu:
+          requires:
+            - build-jdk8
+      - test-jdk12-zulu:
+          requires:
+            - build-jdk8
+      - test-jdk8-liberica:
+          requires:
+            - build-jdk8
+      - test-jdk11-liberica:
+          requires:
+            - build-jdk8
+      - test-jdk12-liberica:
+          requires:
+            - build-jdk8
+      - test-jdk11-sap:
+          requires:
+            - build-jdk8
+      - test-jdk12-sap:
+          requires:
+            - build-jdk8
+  release:
+    jobs:
+      - release:
+          filters:
+            tags:
+              only: /^[0-9]+.[0-9]+.[0-9]+$/
+            branches:
+              ignore: /.*/
